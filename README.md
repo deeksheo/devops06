@@ -1,1 +1,47 @@
 # devops06
+
+
+
+
+
+
+
+
+l8
+pipeline{
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/AnnaBinoy09/demo_devops'
+            }
+        }
+       
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+       
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+       
+        stage('Archive artifacts') {
+            steps {
+                archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+            }
+        }
+       
+        stage('Deploy') {
+            steps {
+                sh """
+                    export ANSIBLE_HOST_KEY_CHECKING=False
+                    ansible-playbook -i hosts.ini deploy.yml --extra-vars "ansible_become_pass=exam@cse"
+                """
+            }
+        }
+    }
+}
